@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import css from './Searchbar.module.css';
+import PropTypes from 'prop-types';
 
 class Searchbar extends Component {
   state = {
@@ -16,6 +17,7 @@ class Searchbar extends Component {
     e.preventDefault();
     this.props.searchImages(imgName);
   };
+
   render() {
     return (
       <header className={css.Searchbar}>
@@ -39,3 +41,6 @@ class Searchbar extends Component {
 }
 
 export default Searchbar;
+Searchbar.propTypes = {
+  searchImages: PropTypes.func.isRequired,
+};

@@ -4,6 +4,7 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
+import PropTypes from 'prop-types';
 import css from './App.module.css';
 
 import API from './API/API';
@@ -87,3 +88,7 @@ class App extends Component {
 }
 
 export default App;
+
+App.propTypes = {
+  API: PropTypes.func.isRequired,
+};

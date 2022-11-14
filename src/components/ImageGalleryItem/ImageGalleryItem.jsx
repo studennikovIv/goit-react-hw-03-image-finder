@@ -1,5 +1,6 @@
 import React from 'react';
 import css from './ImageGalleryItem.module.css';
+import PropTypes from 'prop-types';
 const ImageGalleryItem = ({
   id,
   webformatURL,
@@ -20,3 +21,11 @@ const ImageGalleryItem = ({
 };
 
 export default ImageGalleryItem;
+
+ImageGalleryItem.propTypes = {
+  id: PropTypes.number.isRequired,
+  webformatURL: PropTypes.string.isRequired,
+  alt: PropTypes.string.isRequired,
+  openModal: PropTypes.func.isRequired,
+  largeImageURL: PropTypes.string.isRequired,
+};
