@@ -4,7 +4,6 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import Modal from './Modal/Modal';
 import Button from './Button/Button';
 import Loader from './Loader/Loader';
-import PropTypes from 'prop-types';
 import css from './App.module.css';
 
 import API from './API/API';
@@ -14,48 +13,58 @@ class App extends Component {
     imgName: '',
     imgInfo: [],
     page: 1,
-    per_page: 20,
+    per_page: 12,
     totalImage: 0,
     modalImage: '',
     modalShow: false,
     largeImageURL: '',
-    loader: true,
+    loader: false,
   };
-  componentDidMount() {
-    this.setState({ loader: false });
-  }
-  componentDidUpdate(_, prevState) {
-    const { page, per_page, imgName } = this.state;
-    const prevImgName = prevState.imgName;
 
-    if (prevImgName !== imgName) {
-      API(imgName, page, per_page)
-        .then(imgArr => {
-          this.setState({ imgInfo: imgArr.data.hits });
-        })
-        .catch(error => console.log(error))
-        .finally(this.setState({ loader: false }));
-    }
-    if (prevImgName !== imgName || per_page !== prevState.per_page) {
+  componentDidUpdate(_, prevState) {
+    const { page, imgName, per_page, modalShow } = this.state;
+
+    if (prevState.imgName !== imgName && imgName !== '') {
+      this.setState({ loader: true });
       API(imgName, page, per_page)
         .then(imgArr => {
           this.setState({
             imgInfo: imgArr.data.hits,
+            page: 1,
             totalImage: imgArr.data.total,
           });
         })
         .catch(error => console.log(error))
         .finally(() => this.setState({ loader: false }));
     }
+    if (prevState.page !== page && prevState.imgName === imgName) {
+      this.setState({ loader: true });
+      API(imgName, page, per_page)
+        .then(imgArr => {
+          this.setState(prevState => ({
+            imgInfo: [...prevState.imgInfo, ...imgArr.data.hits],
+          }));
+        })
+        .catch(error => console.log(error.message))
+        .finally(() => this.setState({ loader: false }));
+    }
+
+    if (modalShow) {
+      window.addEventListener('keydown', event => {
+        if (event.code === 'Escape') {
+          this.setState({ modalShow: false });
+        }
+      });
+    }
   }
 
   searchImages = imgName => {
-    this.setState({ imgName, per_page: 20, loader: true });
+    this.setState({ imgName, page: 1 });
   };
 
   modalShow = e => {
     this.setState(currState => ({
-      modalShow: !currState.modalShow,
+      modalShow: false,
     }));
   };
   openModal = (open, largeImageURL) => {
@@ -63,12 +72,12 @@ class App extends Component {
   };
   loadMore = () => {
     this.setState(prevState => ({
-      per_page: prevState.per_page + 20,
-      loader: true,
+      page: prevState.page + 1,
     }));
   };
+
   render() {
-    const { totalImage, imgInfo, per_page, modalShow, largeImageURL, loader } =
+    const { totalImage, imgInfo, modalShow, largeImageURL, loader } =
       this.state;
     return (
       <>
@@ -80,7 +89,7 @@ class App extends Component {
             <Modal modalShow={this.modalShow} largeImageURL={largeImageURL} />
           )}
         </section>
-        {totalImage > per_page && <Button onClick={this.loadMore} />}
+        {totalImage > imgInfo.length && <Button onClick={this.loadMore} />}
         {loader && <Loader />}
       </>
     );
@@ -88,7 +97,3 @@ class App extends Component {
 }
 
 export default App;
-
-App.propTypes = {
-  API: PropTypes.func.isRequired,
-};
