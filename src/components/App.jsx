@@ -13,53 +13,34 @@ class App extends Component {
     imgName: '',
     imgInfo: [],
     page: 1,
-    per_page: 12,
     totalImage: 0,
-    modalImage: '',
     modalShow: false,
     largeImageURL: '',
     loader: false,
   };
 
   componentDidUpdate(_, prevState) {
-    const { page, imgName, per_page, modalShow } = this.state;
+    const { page, imgName, per_page } = this.state;
 
-    if (prevState.imgName !== imgName && imgName !== '') {
+    if (
+      (prevState.imgName !== imgName && imgName !== '') ||
+      prevState.page !== page
+    ) {
       this.setState({ loader: true });
       API(imgName, page, per_page)
         .then(imgArr => {
           this.setState({
-            imgInfo: imgArr.data.hits,
-            page: 1,
+            imgInfo: [...prevState.imgInfo, ...imgArr.data.hits],
             totalImage: imgArr.data.total,
           });
         })
         .catch(error => console.log(error))
         .finally(() => this.setState({ loader: false }));
     }
-    if (prevState.page !== page && prevState.imgName === imgName) {
-      this.setState({ loader: true });
-      API(imgName, page, per_page)
-        .then(imgArr => {
-          this.setState(prevState => ({
-            imgInfo: [...prevState.imgInfo, ...imgArr.data.hits],
-          }));
-        })
-        .catch(error => console.log(error.message))
-        .finally(() => this.setState({ loader: false }));
-    }
-
-    if (modalShow) {
-      window.addEventListener('keydown', event => {
-        if (event.code === 'Escape') {
-          this.setState({ modalShow: false });
-        }
-      });
-    }
   }
 
   searchImages = imgName => {
-    this.setState({ imgName, page: 1 });
+    this.setState({ imgName, page: 1, imgInfo: [] });
   };
 
   modalShow = e => {
@@ -75,6 +56,9 @@ class App extends Component {
       page: prevState.page + 1,
     }));
   };
+  onKeyPress(e) {
+    console.log(e);
+  }
 
   render() {
     const { totalImage, imgInfo, modalShow, largeImageURL, loader } =

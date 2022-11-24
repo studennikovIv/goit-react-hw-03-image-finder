@@ -1,22 +1,37 @@
 import css from './Modal.module.css';
 import PropTypes from 'prop-types';
+import { Component } from 'react';
 
-const Modal = ({ largeImageURL, modalShow, onKeyPress }) => {
-  return (
-    <div
-      className={css.Overlay}
-      onClick={e => {
-        if (e.target.localName !== 'img') {
-          modalShow();
-        }
-      }}
-    >
-      <div className={css.Modal}>
-        <img src={largeImageURL} alt="" />
+class Modal extends Component {
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyDown);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyDown);
+  }
+  handleKeyDown = event => {
+    if (event.code === 'Escape') {
+      this.props.modalShow();
+    }
+  };
+  render() {
+    const { largeImageURL, modalShow } = this.props;
+    return (
+      <div
+        className={css.Overlay}
+        onClick={e => {
+          if (e.target.localName !== 'img') {
+            modalShow();
+          }
+        }}
+      >
+        <div className={css.Modal}>
+          <img src={largeImageURL} alt="" />
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 export default Modal;
 
